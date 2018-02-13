@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="jquery.min.js"></script>
+    <script>
+        $.ajax({
+                type:'get',
+                url:'../data/1016.xml',
+                dataType:'xml',
+                success:function(info){
+                    console.log(info);
+                    var datas=$(info).find('dict dict dict');
+                    // console.log(datas);
+                    var data=[];
+                    datas.each(function(index,e){
+                        var t=$(e).find('string');
+                        // console.log(t);
+                        var d=[];
+                        var reg=/-?\d+/g;
+                        for(var i=0;i<t.length;i++){
+                            //一组数据
+                            d=d.concat(t[i].innerHTML.match(reg));                           
+                        }
+
+                        var r=$(e).find('false');
+
+                         console.log(r.length);
+
+                         if(r.length==1){
+                             d.push('false');
+                         }else{
+                             d.push('true');
+                         }
+                        //全部数据
+                        data[index]=d;                        
+                    })
+
+                    console.log(data);
+                    console.log(JSON.stringify(data)); //转成数组
+                    //原图 x坐标 y坐标  盒子宽 高  偏移x y   手机上的坐标 x y  尺寸 x,y  屏幕尺寸 是否旋转
+                    //["1562","806","210","114","17","-30","392","293","210","114","960","640","false"]
+                }
+            })
+    </script>
+</head>
+<body>
+
+   
+</body>
+</html>
+
+<!--
+                 <dict>
+                <key>frame</key>
+                 原图上  x坐标  y坐标图片的宽 高
+                <string>{{1362,570},{212,110}}</string>
+                偏移
+                <key>offset</key>
+                <string>{11,-32}</string>
+                是否旋转
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                //画在盒子什么地方
+                <string>{{385,297},{212,110}}</string>
+                <key>sourceSize</key>
+                屏幕大小
+                <string>{960,640}</string>
+            </dict>
+                
+-->

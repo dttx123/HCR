@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style type="text/css">
+	*{
+		margin:0;
+		padding:0;
+	}
+	.img{
+		animation:rotatez 7s;
+		animation-timing-function:linear;
+		animation-iteration-count:infinite;
+	}
+	@keyframes rotatez{
+		0%{transform:rotateZ(0deg);}
+        100%{transform:rotateZ(360deg);}
+	}
+	table td{
+       border:1px solid #fff;
+       text-align:center;
+       font-size:30px;
+       color:#fff;
+	}
+</style>
+<title>HTML5可视化mp3音乐播放器代码 - 站长素材</title>
+</head>
+<body style="background-color:#fff;">
+    <script type="text/javascript" src="index.js">
+	</script>
+	<canvas id="canvas" style="border:0px solid #f00">
+	</canvas>
+	<div id='crt' style="width:100%; height:150px; border:0px solid #fff; background-color:#099; text-align:center;">
+    
+	  <table cellspacing="0" style="width:100%;  height:100%; border:1px solid #fff;">
+        <td style="width:25%;">
+         <table id="msclist" class="msclist" style="width:100%; height:100%; background-color:#000;">
+           
+         </table>
+        </td>
+        <td style="width:50%;">
+          <div onClick="last()" style="width:30%; cursor:pointer; line-height:130px; background-color:#63F; margin-left:3%; height:100%; float:left;">
+          上一曲
+          
+          </div>
+          <div onClick="run()" style="width:30%; cursor:pointer; background-color:#63F; margin-left:2%; height:100%; float:left;">
+            <img id="img" src="img/friend.jpg" style=" margin-top:10px; height:120px; width:auto; border-radius:100%;" />
+            
+          </div>
+          <div onClick="next()" style="width:30%; cursor:pointer; line-height:130px; background-color:#63F; margin-left:2%; height:100%; float:left;">
+          下一曲
+          </div>
+        </td>
+        <td style="width:25%;">
+         <form oninput="cgcolor()">
+          <table style="width:100%; height:100%; ">
+           <tr>
+            <td style="cursor:pointer;  background-color:#09C;" onClick="canvascg(1)">球状</td>
+            <td style="cursor:pointer; background-color:#09C;" onClick="canvascg(2)">柱形</td>
+            <td style="cursor:pointer; background-color:#09C;" onClick="canvascg(3)">线条</td>
+           </tr>
+           <!--<tr>
+           
+            <td id="td1" style="cursor:pointer; font-size:18px; background-color:#09C;">开始<br /><input type="color" id='startc' /></td>
+            
+            <td style="cursor:pointer; font-size:18px; background-color:#09C;">中点<br /><input type="color" id='contentc' /></td>
+            <td style="cursor:pointer; font-size:18px; background-color:#09C;">末端<br /><input type="color" id='endc' /></td>
+            
+           </tr>-->
+          </table>
+           </form>
+        </td>
+      </table>
+     
+	</div>
+    <audio id="audio"  style=" ">
+	</audio>
+ 
+<div style="text-align:center;margin:50px 0; font:normal 14px/24px 'MicroSoft YaHei';">
+<p>适用浏览器：360、FireFox、Chrome、Safari、Opera、傲游、搜狗、世界之窗. 不支持IE8及以下浏览器。</p>
+<p>来源：<a href="http://sc.chinaz.com/" target="_blank">站长素材</a></p>
+</div>
+</body>
+</html>

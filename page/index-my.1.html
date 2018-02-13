@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            text-align: center;
+        }
+
+        button{
+            width: 120px;
+            height: 40px;
+            margin:10px 20px;
+
+        }
+    </style>
+    <script src="jquery.min.js"></script>
+    <script>
+        $(function () {
+
+            //从服务获取 游戏数据
+            function getData(url) {
+                 var newData = [];
+                $.ajax({
+                    type: 'get',
+                    url: url,
+                    dataType: 'xml',
+                    success: function (info) {
+                        console.log(info);
+                        var datas = $(info).find('dict dict dict');
+                        // console.log(datas);
+                        var data = [];
+                        datas.each(function (index, e) {
+                            var t = $(e).find('string');
+                            // console.log(t);
+                            var d = [];
+                            var reg = /-?\d+/g;
+                            for (var i = 0; i < t.length; i++) {
+                                //一组数据
+                                d = d.concat(t[i].innerHTML.match(reg));
+                            }
+
+                            var r = $(e).find('false');
+
+                            console.log(r.length);
+
+                            if (r.length == 1) {
+                                d.push(false);
+                            } else {
+                                d.push(true);
+                            }
+                            //全部数据
+                            data[index] = d;
+                        })
+
+                        // console.log(data);
+                        console.log(JSON.stringify(data)); //转成数组
+                        //原图 x坐标 y坐标  盒子宽 高  偏移x y   手机上的坐标 x y  尺寸 x,y  屏幕尺寸 是否旋转
+                        //["1562","806","210","114","17","-30","392","293","210","114","960","640","false"]
+                       
+                        for (var i = 0; i < data.length; i++) {
+                            var d = [];
+                            for (var j = 0; j < data[i].length; j++) {
+                                if (j <= 11) {
+                                    d[j] = Number(data[i][j]);
+                                } else {
+                                    d[j] = Boolean(data[i][j]);
+                                }
+                            }
+                            newData[i] = d;
+                        }                        
+                        //展示数据
+                    }
+                })
+                return newData;
+            }
+
+
+            function draw() {
+
+                if (index < arr.length) {
+                    ctx.clearRect(0, 0, 1500, 1000);
+                    //写数字
+                    ctx.font = "30px 微软雅黑";
+                    ctx.fillText(index + '-' + arr[index][0] + '-' + arr[index][1] + '-' + arr[index][12], 100, 100);
+                    //竖着的图片
+                    if (arr[index][12] == true) {
+
+                        ctx.save();
+
+                        // ctx.rotate(-90*Math.PI/180);
+                        ctx.translate(arr[index][6], arr[index][7] + arr[index][3]);
+                        ctx.rotate(-90 * Math.PI / 180);
+                        // 		ctx.translate(-arr[index][3]/2,
+                        // 		-arr[index][3]/2);
+
+                        ctx.drawImage(img, arr[index][0], arr[index][1], arr[index][3], arr[index][2],
+
+                            0, 0, arr[index][3], arr[index][2]);
+                        ctx.restore();
+
+                    } else {
+                        ctx.drawImage(img, arr[index][0], arr[index][1], arr[index][2], arr[index][3],
+                            arr[index][6], arr[index][7], arr[index][2], arr[index][3]);
+                    }
+
+                    // ctx.drawImage(img, arr[index][0], arr[index][1],arr[index][2],arr[index][3],
+                    //    arr[index][6],arr[index][7],arr[index][2],arr[index][3]);
+                    index++;
+                    if (index >= arr.length) {
+                        index = 1;
+                    }
+                }
+
+            }
+
+            var index=0;
+            var arr=[];
+            var ctx;
+            var img;
+            var timer=null;
+
+            function init(id,dataurl,imgurl){
+                 var MC=document.getElementById(id);
+        	     ctx=MC.getContext("2d");
+
+        		img=new Image();
+        		img.src=imgurl;
+
+               
+                
+        		img.onload=function(){       
+                     arr=getData(dataurl); 
+                     console.log(arr);            
+        			 timer=setInterval(draw, 50)  
+                }
+            }          
+
+            init('myCanvas','../data/1005_role.plist','../data/1005_role.png');
+
+
+            $('button').click(function(){
+                clearInterval(timer);
+                var dataUrl ='../data/'+$(this).val()+'_role.plist';
+                var imgUrl='../data/'+$(this).val()+'_role.png';
+                init('myCanvas',dataUrl,imgUrl)
+            });
+
+
+
+
+        })
+    </script>
+</head>
+
+<body>
+    <canvas id="myCanvas" width="900" height="500" style="background:pink"> </canvas>
+    <br>
+    <button value="1001">盖伦</button>
+    <button value="1002">小丑</button>
+    <button value="1003">剑圣</button>
+    <button value="1005">寒冰</button>
+    <button value="1006">铁拳</button>
+    <button value="1008">劫</button>
+    <button value="1009">悟空</button>
+    <button value="1011">亚索</button>
+    <button value="1016">赵信</button>
+</body>
+
+</html>
+
+<!--
+                 <dict>
+                <key>frame</key>
+                 原图上  x坐标  y坐标图片的宽 高
+                <string>{{1362,570},{212,110}}</string>
+                偏移
+                <key>offset</key>
+                <string>{11,-32}</string>
+                是否旋转
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                //画在盒子什么地方
+                <string>{{385,297},{212,110}}</string>
+                <key>sourceSize</key>
+                屏幕大小
+                <string>{960,640}</string>
+            </dict>
+                
+-->
