@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+
+        body {
+            text-align: center;
+        }
+
+
+        button {
+            width: 120px;
+            height: 40px;
+            margin: 10px 20px;
+        }
+    </style>
+    <script src="jquery.min.js"></script>
+    <script>
+        // 寒冰技能测试
+        $(function () {
+            var indexs = [0,0,0,0,0];
+            var arrs = [];
+            var imgs=[];          
+            var ctx;
+            var img;
+            var imgEffup;
+            var timer = null;
+            var flag = false;
+            var count=0;//计数器
+            var d=true;
+
+            //从服务获取 游戏数据
+            function getData(url,length,fn) {
+                var newData = [];
+                $.ajax({
+                    type: 'get',
+                    url: url,
+                    dataType: 'xml',
+                    success: function (info) {
+                        console.log(info);
+                        var datas = $(info).find('dict dict dict');
+                        // console.log(datas);
+                        var data = [];
+                        datas.each(function (index, e) {
+                            var t = $(e).find('string');
+                            // console.log(t);
+                            var d = [];
+                            var reg = /-?\d+/g;
+                            for (var i = 0; i < t.length; i++) {
+                                //一组数据
+                                d = d.concat(t[i].innerHTML.match(reg));
+                            }
+
+                            var r = $(e).find('false');
+
+                            console.log(r.length);
+
+                            if (r.length == 1) {
+                                d.push(false);
+                            } else {
+                                d.push(true);
+                            }
+                            //全部数据
+                            data[index] = d;
+                        })
+
+                        // console.log(data);
+                        console.log(JSON.stringify(data)); //转成数组
+                        //原图 x坐标 y坐标  盒子宽 高  偏移x y   手机上的坐标 x y  尺寸 x,y  屏幕尺寸 是否旋转
+                        //["1562","806","210","114","17","-30","392","293","210","114","960","640","false"]
+
+                        for (var i = 0; i < data.length; i++) {
+                            var d = [];
+                            for (var j = 0; j < data[i].length; j++) {
+                                if (j <= 11) {
+                                    d[j] = Number(data[i][j]);
+                                } else {
+                                    d[j] = Boolean(data[i][j]);
+                                }
+                            }
+                            newData[i] = d;
+                        }
+                        //展示数据
+                    },
+                    complete:function(){
+                        count++;
+                        console.log('count: ' +count);
+                        if(count>=length*2){
+                           render();
+                        }
+                    }
+                })
+                // console.log(newData);
+                return newData;
+            }
+
+
+            function draw(arr,img,i) {
+                console.log(arr)              
+                var rx=960/arr[indexs[i]][10];
+                var ry=640/arr[indexs[i]][11];
+                if(d){
+                    ctx.clearRect(0, 0, 1500, 1000);
+                    d=false;
+                }
+                // 
+                //写数字
+                ctx.font = "30px 微软雅黑";
+                ctx.fillText(indexs[i] + '-' + arr[indexs[i]][0] + '-' + arr[indexs[i]][1] + '-' + arr[indexs[i]][12], 100, 100);
+                //竖着的图片
+                if (arr[indexs[i]][12] == true) {
+                    ctx.save();
+
+                    // ctx.rotate(-90*Math.PI/180);
+                    ctx.translate(arr[indexs[i]][6]*rx, (arr[indexs[i]][7] + arr[indexs[i]][3])*ry);
+                    ctx.rotate(-90 * Math.PI / 180);
+                    // 		ctx.translate(-arr[indexs[i]][3]/2,
+                    // 		-arr[indexs[i]][3]/2);
+
+                    ctx.drawImage(img, arr[indexs[i]][0], arr[indexs[i]][1], arr[indexs[i]][3], arr[indexs[i]][2],
+                        0, 0, arr[indexs[i]][3]*rx, arr[indexs[i]][2]*ry);
+                    ctx.restore();
+
+                } else {
+                    ctx.drawImage(img, arr[indexs[i]][0], arr[indexs[i]][1], arr[indexs[i]][2], arr[indexs[i]][3],
+                        arr[indexs[i]][6]*rx, arr[indexs[i]][7]*ry, arr[indexs[i]][2]*rx, arr[indexs[i]][3]*ry);
+                }               
+
+                indexs[i]++;
+                if (indexs[i] >= arr.length) {
+                    indexs[i] = 1;
+                }
+               
+
+            }
+
+
+
+            function init(id, list) {
+                var MC = document.getElementById(id);
+                ctx = MC.getContext("2d");               
+
+                list.forEach(function(v,i,list){
+                    img = new Image();
+                    img.src = v.img;     
+                    imgs.push(img);    
+                    arrs[i]=getData(v.data,list.length);   
+                    console.log(arrs);
+
+                    img.onload = function () {  
+                        count++;
+                        console.log('count: ' +count);
+                        if(count>=list.length*2){
+                            render();
+                        }
+                    }
+                })              
+               
+            }
+
+            function render(){
+                timer = setInterval(function(){                   
+                    imgs.forEach(function(v,i,arr){
+                        draw(arrs[i],imgs[i],i);
+                    });
+                    d=true;
+                }, 50)              
+                
+            }
+
+            init('myCanvas', [
+                {data:'../data/1005_role.plist', img:'../data/1005_role.png'},
+                {data:'../data/ashe_E_effup.plist', img:'../data/ashe_E_effup.png'},
+                {data:'../data/1005_effup.plist', img:'../data/1005_effup.png'},
+                {data:'../data/ashe_A2_effup.plist', img:'../data/ashe_A2_effup.png'},
+                // {data:'../data/ashe_Q_effup.plist', img:'../data/ashe_Q_effup.png'},
+                ]);
+
+
+
+
+
+        })
+    </script>
+</head>
+
+<body>
+    <canvas id="myCanvas" width="900" height="500" style="background:#eee"> </canvas>
+    <br>
+
+</body>
+
+</html>
+
+<!--
+                 <dict>
+                <key>frame</key>
+                 原图上  x坐标  y坐标图片的宽 高
+                <string>{{1362,570},{212,110}}</string>
+                偏移
+                <key>offset</key>
+                <string>{11,-32}</string>
+                是否旋转
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                //画在盒子什么地方
+                <string>{{385,297},{212,110}}</string>
+                <key>sourceSize</key>
+                屏幕大小
+                <string>{960,640}</string>
+            </dict>
+                
+-->
